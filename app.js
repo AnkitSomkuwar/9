@@ -26,7 +26,8 @@ const initializeDBAndServer = async () => {
 }
 initializeDBAndServer()
 
-// Register user ApI
+
+//APIs 1 Register user ApI
 
 app.post('/register', async (request, response) => {
   const {username, name, password, gender, location} = request.body
@@ -54,17 +55,20 @@ app.post('/register', async (request, response) => {
     );
      `
     if (password.length < 5) {
+      response.status(400)
       response.send('Password is too short')
     } else {
       let newUserDetails = await db.run(userCreate)
+      response.status(200)
       response.send('User created successfully')
     }
   } else {
+    response.status(400)
     response.send('User already exists')
   }
 })
 
-// APIs Login
+// APIs 2 Login
 app.post('/login', async (request, response) => {
   const {username, password} = request.body
 
@@ -76,12 +80,15 @@ app.post('/login', async (request, response) => {
   `
   const dbUser = await db.get(loginUserQuery)
   if (dbUser === undefined) {
+    response.status(400)
     response.send('Invalid user')
   } else {
     const isPasswordCorrect = await bcrypt.compare(password, dbUser.password)
     if (isPasswordCorrect === true) {
+      response.status(200)
       response.send('Login success!')
     } else {
+      response.status(400)
       response.send('Invalid password')
     }
   }
